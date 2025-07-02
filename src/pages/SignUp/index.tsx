@@ -8,7 +8,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 
 import ArrowBack from '../../assets/arrow_back.svg';
 import GoogleLogo from '../../assets/google.png';
@@ -18,28 +18,97 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../Navigation';
 
+import { getDatabase, ref, set } from 'firebase/database';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+
 const SignUp = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [based64, setbased64] = useState('');
+
+  const auth = getAuth();
+  const db = getDatabase();
+
+  const handleSignUp = () => {
+    if (!fullName || !email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        const user = userCredential.user;
+        set(ref(db, 'users/' + user.uid), {
+          fullName,
+          email,
+          photo: based64,
+        });
+        Alert.alert('Success', 'User registered!');
+        navigation.navigate('SignIn');
+      })
+      .catch(error => {
+        Alert.alert('Signup failed', error.message);
+      });
+  };
 
   const handleChoosePhoto = () => {
-    launchImageLibrary(
+    Alert.alert('Pilih Foto', 'Ambil dari kamera atau pilih dari galeri?', [
       {
-        mediaType: 'photo',
-        quality: 0.5,
+        text: 'Kamera',
+        onPress: () => {
+          launchCamera(
+            {
+              mediaType: 'photo',
+              quality: 0.5,
+              includeBase64: true,
+            },
+            response => {
+              if (response.didCancel) {
+                Alert.alert('Dibatalkan', 'Anda tidak mengambil foto.');
+              } else if (response.errorMessage) {
+                Alert.alert('Error', response.errorMessage);
+              } else if (response.assets && response.assets.length > 0) {
+                const asset = response.assets[0];
+                setPhotoUri(asset.uri || null);
+                setbased64(asset.base64 || '');
+              }
+            },
+          );
+        },
       },
-      response => {
-        if (response.didCancel) {
-          Alert.alert('Upload dibatalkan', 'Anda tidak memilih foto.');
-        } else if (response.errorMessage) {
-          Alert.alert('Terjadi kesalahan', response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
-          setPhotoUri(response.assets[0].uri || null);
-        }
+      {
+        text: 'Galeri',
+        onPress: () => {
+          launchImageLibrary(
+            {
+              mediaType: 'photo',
+              quality: 0.5,
+              includeBase64: true,
+            },
+            response => {
+              if (response.didCancel) {
+                Alert.alert('Dibatalkan', 'Anda tidak memilih foto.');
+              } else if (response.errorMessage) {
+                Alert.alert('Error', response.errorMessage);
+              } else if (response.assets && response.assets.length > 0) {
+                const asset = response.assets[0];
+                setPhotoUri(asset.uri || null);
+                setbased64(asset.base64 || '');
+              }
+            },
+          );
+        },
       },
-    );
+      {
+        text: 'Batal',
+        style: 'cancel',
+      },
+    ]);
   };
 
   return (
@@ -69,6 +138,7 @@ const SignUp = () => {
         placeholder="Enter full name"
         placeholderTextColor="#888"
         style={styles.input}
+        onChangeText={setFullName}
       />
 
       <Text style={styles.label}>Email Address</Text>
@@ -76,6 +146,7 @@ const SignUp = () => {
         placeholder="Enter email"
         placeholderTextColor="#888"
         style={styles.input}
+        onChangeText={setEmail}
       />
 
       <Text style={styles.label}>Password</Text>
@@ -85,10 +156,11 @@ const SignUp = () => {
           placeholderTextColor="#888"
           secureTextEntry
           style={[styles.input, styles.flexWithMargin]}
+          onChangeText={setPassword}
         />
       </View>
 
-      <TouchableOpacity style={styles.signUpButton}>
+      <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
         <Text style={styles.signUpButtonText}>Sign Up</Text>
       </TouchableOpacity>
 

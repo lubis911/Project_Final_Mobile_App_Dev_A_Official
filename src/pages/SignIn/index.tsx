@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,10 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
+
+import Loading from '../../components/molecules/Loading';
 
 import GoogleLogo from '../../assets/google.png';
 import ArrowBack from '../../assets/arrow_back.svg';
@@ -14,64 +17,94 @@ import ArrowBack from '../../assets/arrow_back.svg';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../Navigation'; // pastikan ini mengandung 'Home'
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 const SignIn = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const auth = getAuth();
+  const onSignIn = () => {
+    setLoading(true);
+    signInWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        // Signed in
+
+        Alert.alert('Success', userCredential.user.email + 'Login berhasil!');
+        setLoading(false);
+        //const user = userCredential.user;
+        // navigation.navigate('Home', {
+        //   uid: user.uid,
+        // });
+      })
+      .catch(error => {
+        Alert.alert('Error', error.message);
+        setLoading(false);
+      });
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Header kiri atas */}
-      <TouchableOpacity
-        style={styles.header}
-        onPress={() => navigation.navigate('Home')}
-      >
-        <ArrowBack width={20} height={20} />
-        <Text style={styles.headerText}>Sign In</Text>
-      </TouchableOpacity>
+    <>
+      <View style={styles.container}>
+        {/* Header kiri atas */}
+        <TouchableOpacity
+          style={styles.header}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <ArrowBack width={20} height={20} />
+          <Text style={styles.headerText}>Sign In</Text>
+        </TouchableOpacity>
 
-      {/* Label & Input Email */}
-      <Text style={styles.label}>Email Address</Text>
-      <TextInput
-        placeholder="Enter email"
-        placeholderTextColor="#888"
-        style={styles.input}
-      />
-
-      {/* Label & Input Password */}
-      <Text style={styles.label}>Password</Text>
-      <View style={styles.passwordContainer}>
+        {/* Label & Input Email */}
+        <Text style={styles.label}>Email Address</Text>
         <TextInput
-          placeholder="Enter password"
+          placeholder="Enter email"
           placeholderTextColor="#888"
-          secureTextEntry
-          style={[styles.input, styles.flexWithMargin]}
+          style={styles.input}
+          onChangeText={setEmail}
         />
+
+        {/* Label & Input Password */}
+        <Text style={styles.label}>Password</Text>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            placeholder="Enter password"
+            placeholderTextColor="#888"
+            secureTextEntry
+            style={[styles.input, styles.flexWithMargin]}
+            onChangeText={setPassword}
+          />
+        </View>
+
+        {/* Tombol Login */}
+        <TouchableOpacity style={styles.loginButton} onPress={onSignIn}>
+          <Text style={styles.loginText}>Login</Text>
+        </TouchableOpacity>
+
+        {/* Link ke Sign Up */}
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.signUpText}>Sign Up</Text>
+        </TouchableOpacity>
+
+        {/* Garis pemisah */}
+        <View style={styles.separatorContainer}>
+          <View style={styles.line} />
+          <Text style={styles.separatorText}>Or quick access with</Text>
+          <View style={styles.line} />
+        </View>
+
+        {/* Tombol Login Google */}
+        <TouchableOpacity style={styles.googleButton}>
+          <Image source={GoogleLogo} style={styles.googleLogo} />
+          <Text style={styles.googleText}>Login with Google</Text>
+        </TouchableOpacity>
       </View>
-
-      {/* Tombol Login */}
-      <TouchableOpacity style={styles.loginButton}>
-        <Text style={styles.loginText}>Login</Text>
-      </TouchableOpacity>
-
-      {/* Link ke Sign Up */}
-      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-        <Text style={styles.signUpText}>Sign Up</Text>
-      </TouchableOpacity>
-
-      {/* Garis pemisah */}
-      <View style={styles.separatorContainer}>
-        <View style={styles.line} />
-        <Text style={styles.separatorText}>Or quick access with</Text>
-        <View style={styles.line} />
-      </View>
-
-      {/* Tombol Login Google */}
-      <TouchableOpacity style={styles.googleButton}>
-        <Image source={GoogleLogo} style={styles.googleLogo} />
-        <Text style={styles.googleText}>Login with Google</Text>
-      </TouchableOpacity>
-    </View>
+      {loading && <Loading />}
+    </>
   );
 };
 
