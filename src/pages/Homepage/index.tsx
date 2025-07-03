@@ -7,6 +7,7 @@ import WaitingPayment from '../../components/WaitingPayment';
 import OrderModal from '../../components/OrderModal';
 import PaymentModal from '../../components/PaymentModal';
 import BottomNav from '../../components/BottomNav';
+import PaymentSuccessModal from '../../components/PaymentSuccessModal';
 
 import LocationImg from '../../assets/Location.png';
 
@@ -16,6 +17,7 @@ export default function CarWashScreen() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(0);
   const [showWaitingPayment, setShowWaitingPayment] = useState(false);
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -50,6 +52,10 @@ export default function CarWashScreen() {
         </View>
       </ScrollView>
       <WaitingPayment styles={styles} showWaitingPayment={showWaitingPayment} />
+      <PaymentSuccessModal
+        visible={showPaymentSuccess}
+        onClose={() => setShowPaymentSuccess(false)}
+      />
       <OrderModal
         styles={styles}
         showOrderModal={showOrderModal}
@@ -63,6 +69,8 @@ export default function CarWashScreen() {
         showPaymentModal={showPaymentModal}
         setShowPaymentModal={setShowPaymentModal}
         setShowWaitingPayment={setShowWaitingPayment}
+        
+
       />
       <BottomNav styles={styles} activeTab={activeTab} setActiveTab={setActiveTab} />
     </View>

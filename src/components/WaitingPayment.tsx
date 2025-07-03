@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import BCA from '../assets/logo_payment/bca.svg';
 
-export default function WaitingPayment({ styles, showWaitingPayment }) {
+export default function WaitingPayment({ styles, showWaitingPayment,setShowPaymentSuccess }) {
   if (!showWaitingPayment) return null;
   return (
     <View style={styles.waitingContainer}>
@@ -17,6 +17,7 @@ export default function WaitingPayment({ styles, showWaitingPayment }) {
           <Text style={styles.copyText}>Copy</Text>
         </TouchableOpacity>
       </View>
+      
       <View style={styles.expiredRow}>
         <Text style={styles.expiredLabel}>Invoice will be expired in: </Text>
         <Text style={styles.expiredTime}>23:59</Text>
@@ -38,6 +39,25 @@ export default function WaitingPayment({ styles, showWaitingPayment }) {
           {'\n'}Cek detail transaksi, klik Lanjut
           {'\n'}Masukkan PIN dan transaksi berhasil
         </Text>
+         {/* Tombol sudah bayar */}
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#FFA31A',
+            borderRadius: 20,
+            height: 42,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: 24,
+          }}
+          onPress={() => {
+            setShowWaitingPayment(false);
+            setShowPaymentSuccess(true);
+          }}
+        >
+          <Text style={{ color: 'white', fontSize: 18, fontWeight: '700', fontFamily: 'Century Gothic' }}>
+            Sudah Bayar
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

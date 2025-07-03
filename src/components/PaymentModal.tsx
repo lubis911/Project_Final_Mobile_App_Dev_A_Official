@@ -12,6 +12,7 @@ export default function PaymentModal({
   showPaymentModal,
   setShowPaymentModal,
   setShowWaitingPayment,
+  setShowPaymentSuccess,
 }) {
   return (
     <Modal
