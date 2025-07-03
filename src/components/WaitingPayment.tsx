@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import BCA from '../assets/logo_payment/bca.svg';
 
-export default function WaitingPayment({ styles, showWaitingPayment,setShowPaymentSuccess }) {
+export default function WaitingPayment({ styles, showWaitingPayment, setShowWaitingPayment, setShowPaymentSuccess }) {
   if (!showWaitingPayment) return null;
   return (
     <View style={styles.waitingContainer}>
