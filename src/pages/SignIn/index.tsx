@@ -37,9 +37,7 @@ const SignIn = () => {
         Alert.alert('Success', userCredential.user.email + 'Login berhasil!');
         setLoading(false);
         //const user = userCredential.user;
-        // navigation.navigate('Home', {
-        //   uid: user.uid,
-        // });
+        navigation.navigate('Dashboard');
       })
       .catch(error => {
         Alert.alert('Error', error.message);
